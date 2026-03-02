@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ─────────────────────────────────────────────────── */
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fdf8f0;
+  color: #1a0a0e;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Typography ─────────────────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-semibold leading-tight tracking-tight;
+}
+
+/* ─── Custom scrollbar ───────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fdf8f0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f5c6d8;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f0307a;
+}
+
+/* ─── Focus visible ring ─────────────────────────────────────── */
+
+:focus-visible {
+  @apply outline-none ring-2 ring-blossom-500;
+  --tw-ring-offset-color: #fdf8f0;
+  --tw-ring-offset-width: 2px;
+}
+
+/* ─── Minecraft pixel grid hero utility ─────────────────────── */
+
+.bg-pixel-grid {
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(255,180,210,0.04) 31px, rgba(255,180,210,0.04) 32px),
+    repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(255,180,210,0.04) 31px, rgba(255,180,210,0.04) 32px);
+}
+
+/* ─── Line clamp utilities ───────────────────────────────────── */
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
