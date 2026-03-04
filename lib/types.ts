@@ -41,6 +41,10 @@ export interface Build {
   /** Short description shown on cards */
   description: string;
   steps: BuildStep[];
+  /** Optional YouTube video ID for embedded tutorial */
+  videoUrl?: string;
+  /** Whether this build requires a resource pack to look as shown */
+  requiresResourcePack?: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────

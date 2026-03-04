@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import BuildCard from "@/components/build/BuildCard";
 import CategoryCard from "@/components/build/CategoryCard";
@@ -27,28 +28,33 @@ export default function HomePage() {
   return (
     <div className="space-y-20">
       {/* ─── Hero ─────────────────────────────────────────── */}
-      <section className="relative -mx-4 -mt-8 overflow-hidden bg-gradient-to-br from-blossom-100 via-cream-200 to-cream-100 px-4 py-20 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        {/* Pixel grid background overlay */}
-        <div className="bg-pixel-grid absolute inset-0 opacity-40" />
-
-        {/* Blossom pink radial glow */}
-        <div
-          className="pointer-events-none absolute -top-32 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-blossom-300/30 blur-3xl"
-          aria-hidden="true"
+      <section className="relative -mx-4 -mt-8 overflow-hidden sm:-mx-6 lg:-mx-8">
+        {/* Banner image */}
+        <Image
+          src="/hero.png"
+          alt="Build Schematics — cherry blossom Minecraft world"
+          width={1920}
+          height={800}
+          priority
+          className="h-[420px] w-full object-cover sm:h-[520px] lg:h-[620px]"
         />
 
-        <div className="relative mx-auto max-w-3xl text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blossom-300 bg-white/70 px-4 py-1.5 text-sm text-blossom-600">
+        {/* Dark gradient overlay so text is readable */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+        {/* Centred text content */}
+        <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 text-center px-4 sm:px-6 lg:px-8">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blossom-300 bg-white/20 backdrop-blur-sm px-4 py-1.5 text-sm text-white">
             <span aria-hidden="true">🌸</span>
             Minecraft Build Tutorials
           </div>
 
-          <h1 className="mb-6 text-4xl font-bold text-rose-950 sm:text-5xl lg:text-6xl">
+          <h1 className="mb-6 text-4xl font-bold text-white drop-shadow-lg sm:text-5xl lg:text-6xl">
             Build anything in{" "}
-            <span className="text-blossom-600">Minecraft</span>
+            <span className="text-blossom-300">Minecraft</span>
           </h1>
 
-          <p className="mx-auto mb-8 max-w-xl text-lg text-rose-800/70">
+          <p className="mx-auto mb-8 max-w-xl text-lg text-white/80 drop-shadow">
             Step-by-step tutorials for every build style — from cozy cottages
             to towering gothic castles. Filter by structure, style, difficulty,
             and more.
@@ -57,13 +63,13 @@ export default function HomePage() {
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               href="/search"
-              className="rounded-lg bg-blossom-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blossom-200 transition hover:bg-blossom-500"
+              className="rounded-lg bg-blossom-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-black/30 transition hover:bg-blossom-500"
             >
               Browse All Builds
             </Link>
             <Link
               href="/search?difficulty=Beginner"
-              className="rounded-lg border border-blossom-300 bg-white/60 px-6 py-3 text-sm font-semibold text-rose-800 transition hover:border-blossom-500 hover:text-blossom-600"
+              className="rounded-lg border border-white/40 bg-white/20 backdrop-blur-sm px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/30"
             >
               Beginner Friendly
             </Link>

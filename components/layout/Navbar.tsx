@@ -19,12 +19,13 @@ export default function Navbar() {
             🌸
           </span>
           <span>
-            Block<span className="text-blossom-400">Blueprints</span>
+            Build<span className="text-blossom-400">Schematics</span>
           </span>
         </Link>
 
         {/* Nav links — hidden on small screens */}
         <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+          <NavLink href="/">Home</NavLink>
           <NavLink href="/builds/castles">Structures</NavLink>
           <NavLink href="/styles/medieval">Styles</NavLink>
           <NavLink href="/search">Browse All</NavLink>

@@ -77,6 +77,21 @@ export default function BuildDetailPage({
         <span className="text-rose-800">{build.title}</span>
       </nav>
 
+      {/* ─── Resource pack notice ──────────────────────────── */}
+      {build.requiresResourcePack && (
+        <div className="flex gap-3 rounded-xl border border-blossom-300 bg-blossom-50 p-4">
+          <span className="text-2xl" aria-hidden="true">🎨</span>
+          <div>
+            <p className="font-semibold text-blossom-700">Resource Pack Required</p>
+            <p className="mt-0.5 text-sm text-rose-700/80">
+              This build uses a custom resource pack to achieve the look shown in the tutorial.
+              You will need to download and install the resource pack before starting —
+              without it, some blocks and textures will appear differently in-game.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ─── Main grid ─────────────────────────────────────── */}
       <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
         {/* Left: gallery + tutorial */}
@@ -84,40 +99,23 @@ export default function BuildDetailPage({
           {/* Gallery */}
           <Gallery images={build.images} alt={build.title} />
 
-          {/* Tutorial steps */}
-          <section>
-            <h2 className="mb-6 text-xl font-bold text-blossom-600">
-              Step-by-Step Tutorial
-            </h2>
-            <ol className="space-y-8">
-              {build.steps.map((step) => (
-                <li key={step.stepNumber} className="flex gap-4">
-                  {/* Step number pill */}
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blossom-700 text-sm font-bold text-white">
-                    {step.stepNumber}
-                  </div>
-
-                  <div className="flex-1 space-y-3">
-                    <h3 className="font-semibold text-blossom-700">{step.title}</h3>
-                    <p className="text-sm leading-relaxed text-rose-700/70">
-                      {step.description}
-                    </p>
-                    {step.image && (
-                      <div className="relative aspect-video overflow-hidden rounded-lg border border-blossom-200">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={step.image}
-                          alt={`Step ${step.stepNumber}: ${step.title}`}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </section>
+          {/* Video tutorial */}
+          {build.videoUrl && (
+            <section>
+              <h2 className="mb-4 text-xl font-bold text-blossom-600">
+                Video Tutorial
+              </h2>
+              <div className="relative aspect-video overflow-hidden rounded-xl border border-blossom-200 shadow-sm">
+                <iframe
+                  src={`https://www.youtube.com/embed/${build.videoUrl}`}
+                  title={`${build.title} — Video Tutorial`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="h-full w-full"
+                />
+              </div>
+            </section>
+          )}
         </div>
 
         {/* Right: metadata sidebar */}
@@ -127,7 +125,6 @@ export default function BuildDetailPage({
             <h1 className="text-2xl font-bold text-blossom-600 lg:text-3xl">
               {build.title}
             </h1>
-            <p className="mt-2 text-rose-700/70">{build.description}</p>
 
             <div className="mt-4 flex flex-wrap gap-2">
               <Badge difficulty={build.difficulty} />
@@ -175,13 +172,13 @@ export default function BuildDetailPage({
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-rose-400">
               Materials
             </h3>
-            <ul className="space-y-1">
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
               {build.materials.map((m) => (
                 <li
                   key={m}
                   className="flex items-center gap-2 text-sm text-rose-800"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-blossom-500" />
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blossom-500" />
                   {m}
                 </li>
               ))}
