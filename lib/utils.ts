@@ -1,5 +1,44 @@
 import type { Build, BuildFilters, StructureCategory, AestheticStyle } from "./types";
-import { builds } from "./data";
+import { builds as staticBuilds } from "./data";
+import clientPromise from "./mongodb";
+
+// ─────────────────────────────────────────────────────────────
+// MongoDB helpers
+// ─────────────────────────────────────────────────────────────
+
+/** Fetch all approved builds from MongoDB and normalise them to the Build shape. */
+async function getDbBuilds(): Promise<Build[]> {
+  try {
+    const client = await clientPromise;
+    const db = client.db("buildschematics");
+    const docs = await db.collection("builds").find({ approved: true }).toArray();
+    return docs.map((doc) => ({
+      id: doc._id.toString(),
+      title: doc.title,
+      slug: doc.slug,
+      structure: doc.structure,
+      styles: doc.styles ?? [],
+      difficulty: doc.difficulty,
+      survivalFriendly: Boolean(doc.survivalFriendly),
+      estimatedTime: doc.estimatedTime ?? "",
+      materials: doc.materials ?? [],
+      images: doc.images ?? [],
+      description: doc.description ?? "",
+      steps: doc.steps ?? [],
+      videoUrl: doc.videoUrl ?? undefined,
+      requiresResourcePack: Boolean(doc.requiresResourcePack),
+      submittedBy: doc.submittedBy?.toString() ?? undefined,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/** Merge static + DB builds (DB builds are appended after static ones). */
+export async function getAllBuilds(): Promise<Build[]> {
+  const dbBuilds = await getDbBuilds();
+  return [...staticBuilds, ...dbBuilds];
+}
 
 // ─────────────────────────────────────────────────────────────
 // Slug helpers
@@ -53,11 +92,11 @@ export function slugToStyle(slug: string): AestheticStyle | undefined {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Filter the builds array using the provided criteria.
+ * Filter a builds array using the provided criteria.
  * All filters are AND-combined. Missing filters are ignored.
  */
-export function filterBuilds(filters: BuildFilters): Build[] {
-  return builds.filter((build) => {
+export function filterBuilds(filters: BuildFilters, source: Build[] = staticBuilds): Build[] {
+  return source.filter((build) => {
     // Text search across title, description, materials, styles, structure
     if (filters.q) {
       const q = filters.q.toLowerCase();
@@ -104,14 +143,20 @@ export function filterBuilds(filters: BuildFilters): Build[] {
 // Lookup helpers
 // ─────────────────────────────────────────────────────────────
 
-/** Get a single build by its slug. */
+/** Get a single build by its slug — checks static builds only (sync). For DB builds use getDbBuildBySlug. */
 export function getBuildBySlug(slug: string): Build | undefined {
-  return builds.find((b) => b.slug === slug);
+  return staticBuilds.find((b) => b.slug === slug);
+}
+
+/** Get a single build by slug from both static and DB sources. */
+export async function getBuildBySlugAsync(slug: string): Promise<Build | undefined> {
+  const all = await getAllBuilds();
+  return all.find((b) => b.slug === slug);
 }
 
 /** Get related builds — same structure OR overlapping styles, excluding self. */
 export function getRelatedBuilds(build: Build, limit = 3): Build[] {
-  return builds
+  return staticBuilds
     .filter(
       (b) =>
         b.id !== build.id &&
@@ -123,7 +168,7 @@ export function getRelatedBuilds(build: Build, limit = 3): Build[] {
 
 /** Get featured builds (first N from the full list). */
 export function getFeaturedBuilds(limit = 4): Build[] {
-  return builds.slice(0, limit);
+  return staticBuilds.slice(0, limit);
 }
 
 // ─────────────────────────────────────────────────────────────

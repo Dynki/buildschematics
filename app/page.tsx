@@ -4,7 +4,7 @@ import Link from "next/link";
 import BuildCard from "@/components/build/BuildCard";
 import CategoryCard from "@/components/build/CategoryCard";
 import { structureCategories, styleCategories } from "@/lib/data";
-import { getFeaturedBuilds } from "@/lib/utils";
+import { getAllBuilds } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "BlockBlueprints — Minecraft Build Tutorials",
@@ -22,8 +22,9 @@ export const metadata: Metadata = {
  * Homepage — server component.
  * Showcases structure categories, style categories, and featured builds.
  */
-export default function HomePage() {
-  const featured = getFeaturedBuilds(4);
+export default async function HomePage() {
+  const allBuilds = await getAllBuilds();
+  const featured = allBuilds.slice(0, 4);
 
   return (
     <div className="space-y-20">

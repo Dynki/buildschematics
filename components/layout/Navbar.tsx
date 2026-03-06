@@ -1,12 +1,16 @@
 import Link from "next/link";
 import SearchBar from "@/components/ui/SearchBar";
+import LoginButton from "@/components/auth/LoginButton";
+import { auth } from "@/auth";
 import { Suspense } from "react";
 
 /**
  * Site-wide navigation bar — server component wrapper,
  * SearchBar is client-only (needs Suspense for useSearchParams).
  */
-export default function Navbar() {
+export default async function Navbar() {
+  const session = await auth();
+
   return (
     <header className="sticky top-0 z-50 border-b border-blossom-200 bg-cream-100/90 backdrop-blur-sm">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
@@ -29,6 +33,9 @@ export default function Navbar() {
           <NavLink href="/builds/castles">Structures</NavLink>
           <NavLink href="/styles/medieval">Styles</NavLink>
           <NavLink href="/search">Browse All</NavLink>
+          {session?.user && (
+            <NavLink href="/my-builds">My Builds</NavLink>
+          )}
         </nav>
 
         {/* Search bar — takes remaining space */}
@@ -37,6 +44,9 @@ export default function Navbar() {
             <SearchBar />
           </Suspense>
         </div>
+
+        {/* Auth */}
+        <LoginButton />
       </div>
     </header>
   );

@@ -5,8 +5,10 @@ import Gallery from "@/components/ui/Gallery";
 import Badge from "@/components/ui/Badge";
 import Tag from "@/components/ui/Tag";
 import BuildCard from "@/components/build/BuildCard";
+import DeleteBuildButton from "@/components/build/DeleteBuildButton";
 import { builds } from "@/lib/data";
-import { getBuildBySlug, getRelatedBuilds, structureToSlug } from "@/lib/utils";
+import { getBuildBySlugAsync, getRelatedBuilds, structureToSlug } from "@/lib/utils";
+import { auth } from "@/auth";
 
 // ─── Static params ─────────────────────────────────────────────
 
@@ -21,7 +23,7 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const build = getBuildBySlug(params.slug);
+  const build = await getBuildBySlugAsync(params.slug);
   if (!build) return {};
 
   return {
@@ -47,15 +49,19 @@ export async function generateMetadata({
  * Build detail page — server component.
  * Displays gallery, metadata, step-by-step tutorial, and related builds.
  */
-export default function BuildDetailPage({
+export default async function BuildDetailPage({
   params,
 }: {
   params: { slug: string };
 }) {
-  const buildOrUndefined = getBuildBySlug(params.slug);
+
+  const buildOrUndefined = await getBuildBySlugAsync(params.slug);
   if (!buildOrUndefined) notFound();
-  // notFound() throws, so the assertion below is safe
   const build = buildOrUndefined!;
+
+  const session = await auth();
+  const isOwner = !!session?.user?.id && session.user.id === build.submittedBy;
+
 
   const related = getRelatedBuilds(build);
 
@@ -135,6 +141,11 @@ export default function BuildDetailPage({
               )}
             </div>
           </div>
+
+          {/* Delete button — only shown to the build's creator */}
+          {isOwner && (
+            <DeleteBuildButton slug={build.slug} />
+          )}
 
           {/* Quick stats */}
           <div className="rounded-xl border border-blossom-200 bg-white p-4 space-y-3">

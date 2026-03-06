@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import BuildCard from "@/components/build/BuildCard";
 import FilterSidebar from "@/components/filters/FilterSidebar";
 import SearchBar from "@/components/ui/SearchBar";
-import { filterBuilds } from "@/lib/utils";
+import { filterBuilds, getAllBuilds } from "@/lib/utils";
 import type { AestheticStyle, Difficulty, StructureCategory } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ const PAGE_SIZE = 12;
  * Search page — server component.
  * The SearchBar is client-only (handles debounced input); filtering is server-side.
  */
-export default function SearchPage({ searchParams }: PageProps) {
+export default async function SearchPage({ searchParams }: PageProps) {
   // Parse all URL filter params
   const q = searchParams.q ?? "";
   const style = searchParams.style as AestheticStyle | undefined;
@@ -43,7 +43,8 @@ export default function SearchPage({ searchParams }: PageProps) {
   const page = Math.max(1, Number(searchParams.page ?? 1));
 
   // Server-side filter
-  const results = filterBuilds({ q, style, structure, difficulty, survivalFriendly });
+  const allBuilds = await getAllBuilds();
+  const results = filterBuilds({ q, style, structure, difficulty, survivalFriendly }, allBuilds);
   const totalPages = Math.ceil(results.length / PAGE_SIZE);
   const paginated = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 

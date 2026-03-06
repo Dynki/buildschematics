@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import BuildCard from "@/components/build/BuildCard";
 import FilterSidebar from "@/components/filters/FilterSidebar";
 import { structureCategories } from "@/lib/data";
-import { filterBuilds, slugToStructure } from "@/lib/utils";
+import { filterBuilds, slugToStructure, getAllBuilds } from "@/lib/utils";
 import type { AestheticStyle, Difficulty } from "@/lib/types";
 
 // ─── Static params ────────────────────────────────────────────
@@ -52,7 +52,7 @@ const PAGE_SIZE = 9;
  * Structure category page — server component.
  * Filtering is performed server-side from URL search params.
  */
-export default function StructurePage({ params, searchParams }: PageProps) {
+export default async function StructurePage({ params, searchParams }: PageProps) {
   // Resolve slug → typed category
   const structure = slugToStructure(params.structure);
   if (!structure) notFound();
@@ -70,7 +70,8 @@ export default function StructurePage({ params, searchParams }: PageProps) {
         : undefined;
   const page = Math.max(1, Number(searchParams.page ?? 1));
 
-  const filtered = filterBuilds({ structure, style, difficulty, survivalFriendly });
+  const allBuilds = await getAllBuilds();
+  const filtered = filterBuilds({ structure, style, difficulty, survivalFriendly }, allBuilds);
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 

@@ -45,6 +45,8 @@ export interface Build {
   videoUrl?: string;
   /** Whether this build requires a resource pack to look as shown */
   requiresResourcePack?: boolean;
+  /** The user ID of whoever submitted this build (DB builds only) */
+  submittedBy?: string;
 }
 
 // ─────────────────────────────────────────────────────────────
