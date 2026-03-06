@@ -24,29 +24,29 @@ export async function POST(req: Request) {
 
     const urls: string[] = [];
 
-    for (const file of files) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+    await Promise.all(
+      files.map(async (file) => {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
 
-      // Upload to Cloudinary via the upload_stream API
-      const url = await new Promise<string>((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: "buildschematics",
-            resource_type: "image",
-            // Auto-optimise format and quality for web
-            transformation: [{ quality: "auto", fetch_format: "auto" }],
-          },
-          (error, result) => {
-            if (error || !result) return reject(error ?? new Error("Upload failed"));
-            resolve(result.secure_url);
-          }
-        );
-        stream.end(buffer);
-      });
+        const url = await new Promise<string>((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: "buildschematics",
+              resource_type: "image",
+              transformation: [{ quality: "auto", fetch_format: "auto" }],
+            },
+            (error, result) => {
+              if (error || !result) return reject(error ?? new Error("Upload failed"));
+              resolve(result.secure_url);
+            }
+          );
+          stream.end(buffer);
+        });
 
-      urls.push(url);
-    }
+        urls.push(url);
+      })
+    );
 
     return NextResponse.json({ urls });
   } catch (err) {
