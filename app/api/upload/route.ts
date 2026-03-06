@@ -8,6 +8,17 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Raise Vercel's default 4.5 MB body limit to handle multiple images
+export const config = {
+  api: {
+    bodyParser: false,
+    responseLimit: false,
+  },
+};
+
+// Vercel Hobby = 10s max, Pro = 60s — request more time for multi-image uploads
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   try {
     const session = await auth();
@@ -22,14 +33,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ urls: [] });
     }
 
-    const urls: string[] = [];
-
-    await Promise.all(
+    // Upload all images in parallel, returning URLs in the same order as files
+    const urls = await Promise.all(
       files.map(async (file) => {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        const url = await new Promise<string>((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
             {
               folder: "buildschematics",
@@ -43,8 +53,6 @@ export async function POST(req: Request) {
           );
           stream.end(buffer);
         });
-
-        urls.push(url);
       })
     );
 
