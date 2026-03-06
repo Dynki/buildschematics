@@ -9,14 +9,7 @@ cloudinary.config({
 });
 
 // Raise Vercel's default 4.5 MB body limit to handle multiple images
-export const config = {
-  api: {
-    bodyParser: false,
-    responseLimit: false,
-  },
-};
-
-// Vercel Hobby = 10s max, Pro = 60s — request more time for multi-image uploads
+export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
