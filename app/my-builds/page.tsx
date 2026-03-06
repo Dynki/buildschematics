@@ -104,7 +104,17 @@ export default async function MyBuildsPage() {
           {builds.map((build) => (
             <div key={build.id} className="flex flex-col gap-2">
               <BuildCard build={build} />
-              <DeleteBuildButton slug={build.slug} />
+              <div className="flex gap-2">
+                <Link
+                  href={`/edit/${build.slug}`}
+                  className="flex-1 rounded-lg border border-blossom-300 bg-white px-3 py-1.5 text-center text-sm font-semibold text-blossom-600 transition hover:bg-blossom-50"
+                >
+                  ✏️ Edit
+                </Link>
+                <div className="flex-1">
+                  <DeleteBuildButton slug={build.slug} />
+                </div>
+              </div>
             </div>
           ))}
         </div>

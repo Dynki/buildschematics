@@ -55,7 +55,7 @@ export default function DeleteBuildButton({ slug }: { slug: string }) {
   return (
     <button
       onClick={() => setConfirming(true)}
-      className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-100 transition"
+      className="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-100 transition"
     >
       🗑 Delete Build
     </button>

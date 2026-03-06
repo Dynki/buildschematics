@@ -49,6 +49,71 @@ export async function POST(req: Request) {
   }
 }
 
+export async function PATCH(req: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorised." }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const slug = searchParams.get("slug");
+    if (!slug) {
+      return NextResponse.json({ error: "Slug is required." }, { status: 400 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db("buildschematics");
+
+    const existing = await db.collection("builds").findOne({ slug });
+    if (!existing) {
+      return NextResponse.json({ error: "Build not found." }, { status: 404 });
+    }
+    if (existing.submittedBy !== session.user.id) {
+      return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const { title, structure, difficulty, estimatedTime, survivalFriendly, requiresResourcePack, videoUrl, materials, description, images } = body;
+
+    if (!title || !structure || !difficulty) {
+      return NextResponse.json({ error: "Title, structure and difficulty are required." }, { status: 400 });
+    }
+
+    // Regenerate slug from new title
+    const newSlug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
+
+    await db.collection("builds").updateOne(
+      { slug },
+      {
+        $set: {
+          title,
+          slug: newSlug,
+          structure,
+          difficulty,
+          estimatedTime: estimatedTime || "",
+          survivalFriendly: Boolean(survivalFriendly),
+          requiresResourcePack: Boolean(requiresResourcePack),
+          videoUrl: videoUrl || null,
+          materials: Array.isArray(materials) ? materials : [],
+          images: Array.isArray(images) ? images : [],
+          description: description || "",
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    return NextResponse.json({ success: true, slug: newSlug });
+  } catch (err) {
+    console.error("Build update error:", err);
+    return NextResponse.json({ error: "Server error." }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: Request) {
   try {
     const session = await auth();
