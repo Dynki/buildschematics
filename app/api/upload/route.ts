@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(req: Request) {
   try {
@@ -17,20 +22,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ urls: [] });
     }
 
-    const uploadDir = join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-
     const urls: string[] = [];
 
     for (const file of files) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      // Sanitise filename and prefix with timestamp to avoid collisions
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-      const filename = `${Date.now()}-${safeName}`;
-      await writeFile(join(uploadDir, filename), buffer);
-      urls.push(`/uploads/${filename}`);
+      // Upload to Cloudinary via the upload_stream API
+      const url = await new Promise<string>((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "buildschematics",
+            resource_type: "image",
+            // Auto-optimise format and quality for web
+            transformation: [{ quality: "auto", fetch_format: "auto" }],
+          },
+          (error, result) => {
+            if (error || !result) return reject(error ?? new Error("Upload failed"));
+            resolve(result.secure_url);
+          }
+        );
+        stream.end(buffer);
+      });
+
+      urls.push(url);
     }
 
     return NextResponse.json({ urls });
