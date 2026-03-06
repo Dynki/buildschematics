@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { uploadImages } from "@/lib/uploadImages";
 
 export const STORAGE_KEY = "build_draft";
 
@@ -74,15 +75,15 @@ export default function SubmitForm() {
     const unuploaded = imagePreviews.slice(uploadedUrls.length);
     if (unuploaded.length > 0) {
       setUploading(true);
-      const fd = new FormData();
-      unuploaded.forEach(({ file }) => fd.append("images", file));
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      setUploading(false);
-      if (res.ok) {
-        const { urls } = await res.json();
+      try {
+        const urls = await uploadImages(unuploaded.map((p) => p.file));
         imageUrls = [...uploadedUrls, ...urls];
         setUploadedUrls(imageUrls);
+      } catch {
+        setUploading(false);
+        return;
       }
+      setUploading(false);
     }
 
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ ...form, images: imageUrls }));

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import type { Build } from "@/lib/types";
+import { uploadImages } from "@/lib/uploadImages";
 
 export default function EditBuildForm({ build }: { build: Build }) {
   const router = useRouter();
@@ -70,17 +71,15 @@ export default function EditBuildForm({ build }: { build: Build }) {
     // Upload any newly added images first
     if (newPreviews.length > 0) {
       setUploading(true);
-      const fd = new FormData();
-      newPreviews.forEach(({ file }) => fd.append("images", file));
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      setUploading(false);
-
-      if (!res.ok) {
+      try {
+        const urls = await uploadImages(newPreviews.map((p) => p.file));
+        allImageUrls = [...allImageUrls, ...urls];
+      } catch {
+        setUploading(false);
         setError("Image upload failed. Please try again.");
         return;
       }
-      const { urls } = await res.json();
-      allImageUrls = [...allImageUrls, ...urls];
+      setUploading(false);
     }
 
     setSaving(true);
