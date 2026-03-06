@@ -37,7 +37,7 @@ async function getDbBuilds(): Promise<Build[]> {
 /** Merge static + DB builds (DB builds are appended after static ones). */
 export async function getAllBuilds(): Promise<Build[]> {
   const dbBuilds = await getDbBuilds();
-  return [...staticBuilds, ...dbBuilds];
+  return [...dbBuilds];
 }
 
 // ─────────────────────────────────────────────────────────────
